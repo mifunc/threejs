@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>TEST</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+<meta name='viewport' content='width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no'>
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+<script src="js/three.min.js"></script>
+<script src="js/photo-sphere-viewer.min.js"></script>
+    <!---->
+<script src="js/demo01.js"></script>
+<style>
+html,body{
+  width:100%;
+  position:relative;
+}
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    box-sizing: border-box;
+    text-decoration: none;
+    border: 0;
+    outline: 0;
+}
+.main{
+    width: 100%;
+    margin: 0 auto;
+	position:absolute;
+	z-index:9999;
+	top:-20px;
+}
+.main h3{
+    text-align: center;
+}
+	.button{
+        width: 100%;
+        margin: 10px auto;
+    }
+    table{
+        border-collapse: collapse;
+        width: 100%;
+		height: 500px;
+        margin: 0 auto;
+    }
+    td{
+        width: 1px;
+        height: 1px;
+        border:1px solid #fff;
+		border-radius:1px;
+		position:relative;
+    }
+	.addrName{
+	    position:absolute;
+		width:50px;
+		height:30px;
+		top:-20px;
+		left:-10px;
+		font-size:14px;
+		text-align:center;
+	}
+
+    td.path{
+       
+        background-size: 2px 2px;
+		background-color:green;
+    }
+    td.block{
+        background-size:2px 2px;
+		background-color:#000;
+    }
+	.addr1{background:red;}
+	.addr2{background:red;}
+	.addr3{background:red;}
+	.addr4{background:red;}
+	.addr5{background:red;}
+	#close,#title{display:none;position:relative;position:absolute;}
+	#close{right:20px;top:-10px;border:solid 1px  #fff;border-radius:50px;width:50px;height:50px;text-align:center;line-height:50px;font-size:25px;}
+	#title{top:40px;z-index:9999999;color:#fff;width:100%;text-align:center;}
+</style>
+</head>
+<body>
+<div class="main">
+        
+		
+		<div id="title">滑动查看效果<span id="close">X</span></div>
+        <div id="container"></div>
+    </div>
+	<div class="button">
+	    <div id="begin">
+		
+		</div>
+		<div id="end">
+		
+		</div>
+		<button onclick="search();">路线</button>
+		</div>
+		
+	
+    <script type="text/javascript">
+	    //0 表示可以 1表示不可以
+    	var rows = 50,cols =50;
+    	var map = multiArray(rows,cols),elems = multiArray(rows,cols);
+
+    	var addr1 = {
+            x: 40,
+            y: 46,
+			n: "工厂A",
+			z: "addr1",
+			img: "images/360img01.jpg"
+        };
+		var addr2 = {
+            x: 30,
+            y: 20,
+			n: "食堂B",
+			z: "addr2",
+			img: "images/360img01.jpg"
+        };
+		var addr3 = {
+            x: 40,
+            y: 30,
+			n: "车间A",
+			z: "addr3",
+			img: "images/360img02.jpg"
+        };
+		var addr4 = {
+            x: 20,
+            y: 47,
+			n: "工厂C",
+			z: "addr4",
+			img: "images/360img03.jpg"
+        };
+		var addr5 = {
+            x: 20,
+            y: 30,
+			n: "停车场",
+			z: "addr5",
+			img: "images/360img04.jpg"
+        };
+		var addrlist=[addr1,addr2,addr3,addr4,addr5];
+		
+		init(rows,cols,map,addrlist);
+		$('#close').click(function(){
+		      
+		      $('#container').css("height",0);
+		      $('#container').html('');
+			  $('#close').hide();
+			  $('#title').hide();
+		});
+		
+		function  search(){
+		//clearPath();
+		    var begin=eval($("#begin option:selected").val());
+		    var end=eval($("#end option:selected").val());
+		    console.log(begin);
+			console.log(end);
+            if(begin.z==end.z){
+			   alert("起点不能和终点重合");
+			   return false;
+			}
+		    searchRoad(begin,end);
+		}
+		function option(addrlist){
+		  var str="<select>";
+		 for(var k=0;k<addrlist.length;k++){
+		      var addr=addrlist[k];
+              str+="<option value='"+addr.z+"'>"+addr.n+"</option>";
+		 }
+		 str+="<select>";
+		 var   begin=document.getElementById("begin");
+		 var   end=document.getElementById("end");
+		 begin.innerHTML=str;
+		 end.innerHTML=str;
+		
+		}
+		function init(rows,cols,map,addrlist){
+		option(addrlist);
+		
+		var table = document.createElement("table");
+    	for(var i=0,l=map.length;i<l;i++){
+    		var tr = document.createElement("tr");
+    		for(var j=0,ll=map[i].length;j<ll;j++){
+    			var td = document.createElement("td");
+				    
+				  for(var k=0;k<addrlist.length;k++){
+				         var addr=addrlist[k];
+						 if(i==addr.y&&j==addr.x){
+						     //map[j][i] = 0;
+    				         td.className = addr.z;
+							 td.title = addr.n;
+							 $(td).html("<div class='addrName' onclick=\"img360('"+addr.img+"')\" >"+addr.n+"</div>");
+    			      }
+				  }
+    		
+    			
+    			elems[j][i] = tr.appendChild(td);
+				
+				console.log(elems[j][i]);
+    			(function(i,j){
+    				td.onclick = function(){
+    					clearPath();
+    					if(elems[j][i].className=="block"){
+    						elems[j][i].className = "";
+    						map[j][i] = 0;  
+    					}else if(!elems[j][i].className){
+    						elems[j][i].className = 'block';
+    						map[j][i] = 1;
+    					}
+    				}
+    			})(i,j);
+    		}
+    		table.appendChild(tr);
+    	}
+    	document.body.appendChild(table);
+		
+		}
+    	function img360(img){
+		    $('#close').show();
+			$('#title').show();
+		    getTitleHeight();
+            loadingAllImg(img);
+		    
+		}
+    	function multiArray(rows,cols){
+    		var a = new Array(rows);
+    		for(var i=0,l=a.length;i<l;i++){
+    			a[i] = new Array(cols);
+    			for(var j=0;j<cols;j++){
+    				a[i][j] = 0;
+    			}
+    		}
+    		return a;
+    	}
+    	function clearPath(){
+    		for(var i=0,l=map.length;i<l;i++){
+	    		for(var j=0,ll=map[i].length;j<ll;j++){
+	    			if(elems[j][i].className=="path"){
+	    				elems[j][i].className = "";
+	    			}
+	    		}
+	    	}
+    	}
+
+        function searchRoad(begin,end) {
+            var openList = [], closeList = [],
+                result = [], result_index;
+            openList.push({
+                x: begin.x,
+                y: begin.y,
+                G: 0
+            });
+            while(!(result_index=existList({x: end.x, y: end.y}, openList))){
+                var currentPoint = openList.pop();
+                closeList.push(currentPoint);
+                var sourroundPoint = getSurroundPoint(currentPoint);
+                sourroundPoint.map(function(item, index) {
+                    if (item.x >= 0 &&
+                        item.x < cols &&
+                        item.y >= 0 &&
+                        item.y < rows &&
+                        map[item.x][item.y] !== 1 &&
+                        !existList(item, closeList)) {
+                        var g = currentPoint.G + ((item.x - currentPoint.x) * (item.y - currentPoint.y) === 0 ? 10 : 14);
+                        if (!existList(item, openList)) {
+                            item['H'] = Math.abs(end.x - item.x) * 10 + Math.abs(end.y - item.y) * 10;
+                            item['G'] = g;
+                            item['F'] = item.G + item.H;
+                            item['parent'] = currentPoint;
+                            openList.push(item);
+                        }
+                    }
+                });
+                if (openList.length === 0) {
+                    alert('没有可用路径');
+                    break;
+                }
+                openList.sort(sortF);
+            };
+
+            if (result_index) {
+                var currentObj = openList[result_index];
+                while(currentObj.x !== begin.x || currentObj.y != begin.y){
+                    result.unshift({
+                        x: currentObj.x,
+                        y: currentObj.y
+                    });
+                    currentObj = currentObj.parent;
+                };
+            }
+            for(var i=0,l=result.length;i<l;i++){
+                if(result[i].x==end.x&&result[i].y==end.y) continue;
+                elems[result[i].x][result[i].y].className = 'path';
+            }
+            return result;
+        }
+        //用F值对数组排序
+        function sortF(a,b){
+            return b.F- a.F;
+        }
+        function getSurroundPoint(currentPoint) {
+            var x = currentPoint.x, y = currentPoint.y;
+            return [
+                {x:x-1,y:y-1},
+                {x:x,y:y-1},
+                {x:x+1,y:y-1},
+                {x:x+1,y:y},
+                {x:x+1,y:y+1},
+                {x:x,y:y+1},
+                {x:x-1,y:y+1},
+                {x:x-1,y:y}
+            ];
+        }
+        function existList(point,list) {
+            for(var i in list) {
+                if(point.x==list[i].x && point.y==list[i].y) {
+                    return i;
+                }
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>
